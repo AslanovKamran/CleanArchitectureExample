@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\DinnerStore.Contracts\DinnerStore.Contracts.csproj" />
+    <ProjectReference Include="..\DinnerStore.Application\DinnerStore.Application.csproj" />
+    <ProjectReference Include="..\DinnerStore.Infrastructure\DinnerStore.Infrastructure.csproj" />
+  </ItemGroup>
+
+</Project>
