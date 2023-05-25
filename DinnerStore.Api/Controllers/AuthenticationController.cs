@@ -22,10 +22,10 @@ namespace DinnerStore.Api.Controllers
 			var authResult = _authencticationService.Register(request.FirstName, request.LastName, request.Email, request.Password);
 			var authResponse = new AuthenticationResponse
 				(
-				authResult.Id,
-				authResult.FirstName,
-				authResult.LastName,
-				authResult.Email,
+				authResult.User.Id,
+				authResult.User.FirstName,
+				authResult.User.LastName,
+				authResult.User.Email,
 				authResult.Token
 				);
 			return Ok(authResponse);
@@ -35,16 +35,25 @@ namespace DinnerStore.Api.Controllers
 		[HttpPost]
 		public IActionResult Login(LoginRequest request)
 		{
-			var authResult = _authencticationService.Login(request.Email, request.Password);
-			var authResponse = new AuthenticationResponse
-				(
-				authResult.Id,
-				authResult.FirstName,
-				authResult.LastName,
-				authResult.Email,
-				authResult.Token
-				);
-			return Ok(authResponse);
+			try
+			{
+				var authResult = _authencticationService.Login(request.Email, request.Password);
+				var authResponse = new AuthenticationResponse
+					(
+					authResult.User.Id,
+					authResult.User.FirstName,
+					authResult.User.LastName,
+					authResult.User.Email,
+					authResult.Token
+					);
+				return Ok(authResponse);
+			}
+			catch (Exception ex)
+			{
+
+				return BadRequest(ex.Message);
+			}
+			
 
 		}
 
