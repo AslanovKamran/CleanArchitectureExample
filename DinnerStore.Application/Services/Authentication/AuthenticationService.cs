@@ -27,7 +27,6 @@ namespace DinnerStore.Application.Services.Authentication
 			if (user.Password != password) 
 			{
 				throw new Exception(message: "Invalid Password");
-
 			}
 
 			//3. Create JWT token and return it

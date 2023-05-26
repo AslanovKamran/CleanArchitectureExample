@@ -1,4 +1,5 @@
-﻿using DinnerStore.Application.Services.Authentication;
+﻿using DinnerStore.Api.Filters;
+using DinnerStore.Application.Services.Authentication;
 using DinnerStore.Contracts.Authentication;
 using Microsoft.AspNetCore.Mvc;
 
@@ -6,6 +7,7 @@ namespace DinnerStore.Api.Controllers
 {
 	[Route("auth")]
 	[ApiController]
+
 	public class AuthenticationController : ControllerBase
 	{
 
