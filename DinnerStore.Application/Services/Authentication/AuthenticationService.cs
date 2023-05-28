@@ -1,7 +1,9 @@
 ﻿
+using DinnerStore.Application.Common.Errors;
 using DinnerStore.Application.Common.Interfaces.Authentication;
 using DinnerStore.Application.Common.Interfaces.Persistence;
 using DinnerStore.Domain.Entities;
+using OneOf;
 
 namespace DinnerStore.Application.Services.Authentication
 {
@@ -15,18 +17,18 @@ namespace DinnerStore.Application.Services.Authentication
 			_userRepository = userRepository;
 		}
 
-		public AuthenticationResult Login(string email, string password)
+		public OneOf<AuthenticationResult,IError> Login(string email, string password)
 		{
 			//1. Validate the user exists
 			if (_userRepository.GetUserByEmail(email) is not User user) 
 			{
-				throw new Exception(message: "User with this email doesn't exists");
+				return new InvalidCredentialsError();
 			}
 
 			//2. Validate the password is correct 
 			if (user.Password != password) 
 			{
-				throw new Exception(message: "Invalid Password");
+				return new InvalidCredentialsError();
 			}
 
 			//3. Create JWT token and return it
@@ -36,12 +38,12 @@ namespace DinnerStore.Application.Services.Authentication
 				token);
 		}
 
-		public AuthenticationResult Register(string firstName, string lastName, string email, string password)
+		public OneOf<AuthenticationResult, IError> Register(string firstName, string lastName, string email, string password)
 		{
 			// 1. Validate the user doesn't exist
 			if (_userRepository.GetUserByEmail(email) is not null) 
 			{
-				throw new Exception(message: "User with this email already exists");
+				return new DuplicateEmailError();
 			}
 
 			// 2. Create a user (generate unique ID) and Persist to DB

@@ -1,8 +1,11 @@
-﻿namespace DinnerStore.Application.Services.Authentication
+﻿using DinnerStore.Application.Common.Errors;
+using OneOf;
+
+namespace DinnerStore.Application.Services.Authentication
 {
 	public interface IAuthenticationService
 	{
-		AuthenticationResult Login(string email, string password);
-		AuthenticationResult Register(string firstName, string lastName, string email, string password);
+		OneOf<AuthenticationResult, IError> Register(string firstName, string lastName, string email, string password);
+		OneOf<AuthenticationResult,IError> Login(string email, string password);
 	}
 }

@@ -1,13 +1,13 @@
-﻿using DinnerStore.Api.Filters;
+﻿using DinnerStore.Application.Common.Errors;
 using DinnerStore.Application.Services.Authentication;
 using DinnerStore.Contracts.Authentication;
 using Microsoft.AspNetCore.Mvc;
+using OneOf;
 
 namespace DinnerStore.Api.Controllers
 {
 	[Route("auth")]
 	[ApiController]
-
 	public class AuthenticationController : ControllerBase
 	{
 
@@ -21,42 +21,39 @@ namespace DinnerStore.Api.Controllers
 		[HttpPost]
 		public IActionResult Register(RegisterRequest request)
 		{
-			var authResult = _authencticationService.Register(request.FirstName, request.LastName, request.Email, request.Password);
-			var authResponse = new AuthenticationResponse
-				(
-				authResult.User.Id,
-				authResult.User.FirstName,
-				authResult.User.LastName,
-				authResult.User.Email,
-				authResult.Token
+			OneOf<AuthenticationResult, IError> registerResult =
+				_authencticationService.Register(request.FirstName, request.LastName, request.Email, request.Password);
+
+			return registerResult.Match(
+				authResult => Ok(MapAuthResult(authResult)),
+				error => Problem(statusCode: (int)error.StatusCode, title: error.ErrorMessage)
 				);
-			return Ok(authResponse);
 		}
+
+
 
 		[Route("login")]
 		[HttpPost]
 		public IActionResult Login(LoginRequest request)
 		{
-			try
-			{
-				var authResult = _authencticationService.Login(request.Email, request.Password);
-				var authResponse = new AuthenticationResponse
-					(
-					authResult.User.Id,
-					authResult.User.FirstName,
-					authResult.User.LastName,
-					authResult.User.Email,
-					authResult.Token
-					);
-				return Ok(authResponse);
-			}
-			catch (Exception ex)
-			{
+			OneOf<AuthenticationResult, IError> loginResult = _authencticationService.Login(request.Email, request.Password);
 
-				return BadRequest(ex.Message);
-			}
-			
+			return loginResult.Match(
+				authResult => Ok(MapAuthResult(authResult)),
+				error => Problem(statusCode: (int)error.StatusCode, title: error.ErrorMessage)
+				);
+		}
 
+		private static AuthenticationResponse MapAuthResult(AuthenticationResult authResult)
+		{
+			return new AuthenticationResponse
+								(
+								authResult.User.Id,
+								authResult.User.FirstName,
+								authResult.User.LastName,
+								authResult.User.Email,
+								authResult.Token
+								);
 		}
 
 	}
