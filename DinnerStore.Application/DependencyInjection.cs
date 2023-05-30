@@ -1,13 +1,13 @@
-﻿using DinnerStore.Application.Services.Authentication;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
+using System.Reflection;
 
 namespace DinnerStore.Application
 {
 	public static class DependencyInjection
 	{
-		public static IServiceCollection AddApplication(this IServiceCollection services) 
+		public static IServiceCollection AddApplication(this IServiceCollection services)
 		{
-			services.AddScoped<IAuthenticationService, AuthenticationService>();
+			services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(Assembly.GetExecutingAssembly()));
 			return services;
 		}
 	}

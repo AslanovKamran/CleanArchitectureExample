@@ -1,6 +1,9 @@
-﻿using DinnerStore.Application.Common.Errors;
-using DinnerStore.Application.Services.Authentication;
+﻿using DinnerStore.Application.Authentication.Commands.Register;
+using DinnerStore.Application.Authentication.Common;
+using DinnerStore.Application.Authentication.Queries.Login;
+using DinnerStore.Application.Common.Errors;
 using DinnerStore.Contracts.Authentication;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using OneOf;
 
@@ -10,19 +13,17 @@ namespace DinnerStore.Api.Controllers
 	[ApiController]
 	public class AuthenticationController : ControllerBase
 	{
+		private readonly IMediator _mediator;
 
-		private readonly IAuthenticationService _authencticationService;
-		public AuthenticationController(IAuthenticationService authencticationService)
-		{
-			_authencticationService = authencticationService;
-		}
+		public AuthenticationController(IMediator mediator) => _mediator = mediator;
 
-		[Route("register")]
 		[HttpPost]
-		public IActionResult Register(RegisterRequest request)
+		[Route("register")]
+		public async Task<IActionResult> Register(RegisterRequest request)
 		{
-			OneOf<AuthenticationResult, IError> registerResult =
-				_authencticationService.Register(request.FirstName, request.LastName, request.Email, request.Password);
+			var command = new RegisterCommand(request.FirstName, request.LastName, request.Email, request.Password);
+
+			OneOf<AuthenticationResult, IError> registerResult = await _mediator.Send(command);
 
 			return registerResult.Match(
 				authResult => Ok(MapAuthResult(authResult)),
@@ -32,11 +33,12 @@ namespace DinnerStore.Api.Controllers
 
 
 
-		[Route("login")]
 		[HttpPost]
-		public IActionResult Login(LoginRequest request)
+		[Route("login")]
+		public async Task<IActionResult> Login(LoginRequest request)
 		{
-			OneOf<AuthenticationResult, IError> loginResult = _authencticationService.Login(request.Email, request.Password);
+			var query = new LoginQuery(request.Email, request.Password);
+			OneOf<AuthenticationResult, IError> loginResult = await _mediator.Send(query);
 
 			return loginResult.Match(
 				authResult => Ok(MapAuthResult(authResult)),
@@ -44,16 +46,17 @@ namespace DinnerStore.Api.Controllers
 				);
 		}
 
+
+		[NonAction]
 		private static AuthenticationResponse MapAuthResult(AuthenticationResult authResult)
 		{
-			return new AuthenticationResponse
-								(
-								authResult.User.Id,
-								authResult.User.FirstName,
-								authResult.User.LastName,
-								authResult.User.Email,
-								authResult.Token
-								);
+			return new AuthenticationResponse(
+			authResult.User.Id,
+			authResult.User.FirstName,
+			authResult.User.LastName,
+			authResult.User.Email,
+			authResult.Token
+			);
 		}
 
 	}
