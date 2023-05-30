@@ -1,6 +1,4 @@
-﻿
-
-using DinnerStore.Domain.Entities;
+﻿using DinnerStore.Domain.Entities;
 
 namespace DinnerStore.Application.Authentication.Common
 {

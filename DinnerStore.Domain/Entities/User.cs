@@ -1,6 +1,4 @@
-﻿
-
-namespace DinnerStore.Domain.Entities
+﻿namespace DinnerStore.Domain.Entities
 {
 	public class User
 	{

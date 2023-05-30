@@ -1,5 +1,4 @@
-﻿
-using DinnerStore.Application.Common.Interfaces.Services;
+﻿using DinnerStore.Application.Common.Interfaces.Services;
 
 namespace DinnerStore.Infrastructure.Services
 {
