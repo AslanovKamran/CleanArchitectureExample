@@ -1,8 +1,9 @@
-﻿using DinnerStore.Application.Authentication.Commands.Register;
-using DinnerStore.Application.Authentication.Common;
+﻿using DinnerStore.Application.Authentication.Common;
+using DinnerStore.Application.Authentication.Commands.Register;
 using DinnerStore.Application.Authentication.Queries.Login;
 using DinnerStore.Application.Common.Errors;
 using DinnerStore.Contracts.Authentication;
+using MapsterMapper;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using OneOf;
@@ -14,19 +15,25 @@ namespace DinnerStore.Api.Controllers
 	public class AuthenticationController : ControllerBase
 	{
 		private readonly IMediator _mediator;
+		private readonly IMapper _mapper;
 
-		public AuthenticationController(IMediator mediator) => _mediator = mediator;
+		public AuthenticationController(IMediator mediator, IMapper mapper)
+		{
+			_mediator = mediator;
+			_mapper = mapper;
+		}
+
 
 		[HttpPost]
 		[Route("register")]
 		public async Task<IActionResult> Register(RegisterRequest request)
 		{
-			var command = new RegisterCommand(request.FirstName, request.LastName, request.Email, request.Password);
+			var command = _mapper.Map<RegisterCommand>(request);
 
 			OneOf<AuthenticationResult, IError> registerResult = await _mediator.Send(command);
 
 			return registerResult.Match(
-				authResult => Ok(MapAuthResult(authResult)),
+				authResult => Ok(_mapper.Map<AuthenticationResponse>(authResult)),
 				error => Problem(statusCode: (int)error.StatusCode, title: error.ErrorMessage)
 				);
 		}
@@ -37,27 +44,17 @@ namespace DinnerStore.Api.Controllers
 		[Route("login")]
 		public async Task<IActionResult> Login(LoginRequest request)
 		{
-			var query = new LoginQuery(request.Email, request.Password);
+			var query = _mapper.Map<LoginQuery>(request);
 			OneOf<AuthenticationResult, IError> loginResult = await _mediator.Send(query);
 
 			return loginResult.Match(
-				authResult => Ok(MapAuthResult(authResult)),
+				authResult => Ok(_mapper.Map<AuthenticationResponse>(authResult)),
 				error => Problem(statusCode: (int)error.StatusCode, title: error.ErrorMessage)
 				);
 		}
 
 
-		[NonAction]
-		private static AuthenticationResponse MapAuthResult(AuthenticationResult authResult)
-		{
-			return new AuthenticationResponse(
-			authResult.User.Id,
-			authResult.User.FirstName,
-			authResult.User.LastName,
-			authResult.User.Email,
-			authResult.Token
-			);
-		}
+		
 
 	}
 }

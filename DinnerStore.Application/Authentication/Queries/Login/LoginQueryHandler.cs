@@ -21,6 +21,7 @@ namespace DinnerStore.Application.Authentication.Queries.Login
 
 		public async Task<OneOf<AuthenticationResult, IError>> Handle(LoginQuery command, CancellationToken cancellationToken)
 		{
+			await Task.CompletedTask;
 			//1. Validate the user exists
 			if (_userRepository.GetUserByEmail(command.Email) is not User user)
 			{
