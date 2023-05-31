@@ -1,5 +1,7 @@
 ﻿using Mapster;
 using MapsterMapper;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.OpenApi.Models;
 using System.Reflection;
 
 namespace DinnerStore.Api
@@ -11,7 +13,28 @@ namespace DinnerStore.Api
 
 			services.AddControllers();
 			services.AddEndpointsApiExplorer();
-			services.AddSwaggerGen();
+			services.AddSwaggerGen(options => 
+			{
+				var securityScheme = new OpenApiSecurityScheme
+				{
+					Name = "Jwt Authentication",
+					Description = "Type in a valid JWT Bearer",
+					In = ParameterLocation.Header,
+					Type = SecuritySchemeType.Http,
+					Scheme = "Bearer",
+					BearerFormat = "Jwt",
+					Reference = new OpenApiReference
+					{
+						Id = JwtBearerDefaults.AuthenticationScheme,
+						Type = ReferenceType.SecurityScheme
+					}
+				};
+				options.AddSecurityDefinition(securityScheme.Reference.Id, securityScheme);
+				options.AddSecurityRequirement(new OpenApiSecurityRequirement
+				{
+					{securityScheme,Array.Empty<string>() }
+				});
+			});
 
 			var config = TypeAdapterConfig.GlobalSettings;
 			config.Scan(Assembly.GetExecutingAssembly());
